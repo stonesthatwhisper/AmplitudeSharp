@@ -31,7 +31,7 @@ namespace AmplitudeSharp
         private AmplitudeApi api;
         private AmplitudeIdentify identification;
         private SemaphoreSlim eventsReady;
-        private long sessionId;
+        private long sessionId = -1;
 
         /// <summary>
         /// Sets Offline mode, which means the events are never sent to actual amplitude service
@@ -84,7 +84,7 @@ namespace AmplitudeSharp
         /// <param name="persistenceStream">optinal, stream with saved event data <seealso cref="Uninitialize(Stream)"/></param>
         /// <param name="logger">Action delegate for logging purposes, if none is specified <see cref="System.Diagnostics.Debug.WriteLine(object)"/> is used</param>
         /// <returns></returns>
-        public static AmplitudeService Initialize(string apiKey, Action<LogLevel, string> logger = null, Stream persistenceStream = null)
+        public static AmplitudeService Initialize(string apiKey, Action<LogLevel, string> logger = null, Stream persistenceStream = null, bool newSession = false)
         {
             if (apiKey == "<YOUR_API_KEY>")
             {
@@ -92,7 +92,10 @@ namespace AmplitudeSharp
             }
 
             AmplitudeService instance = new AmplitudeService(apiKey);
-            instance.NewSession();
+            if (newSession)
+            {
+                instance.NewSession();
+            }
 
             if (Interlocked.CompareExchange(ref s_instance, instance, null) == null)
             {
